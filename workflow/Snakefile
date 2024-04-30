@@ -2,3 +2,27 @@
 # Please follow the best practices: 
 # https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html,
 # in particular regarding the standardized folder structure mentioned there. 
+
+configfile: "config/config.yml"
+
+rule all:
+    input:
+        storage.ftp(
+            expand(
+                f"ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/oa_noncomm_xml.PMC"
+                f"{{subset}}"
+                f"xxxxxx.baseline."
+                f"{config['pmc_baseline_date']}"
+                f".tar.gz",
+                subset=config["subset"]
+            )
+        )
+    output:
+        directory("resources/subsets/")
+    shell:
+        "cp {input} {output}"
+
+rule clean:
+    threads: 1
+    shell:
+        "rm -rf resources/ results/ .cache/ .conda/ .snakemake/ logs/"  # Keeping extracted files
