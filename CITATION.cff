@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2024 German Aerospace Center (DLR)
+# SPDX-FileContributor: Stephan Druskat <stephan.druskat@dlr.de>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: PMC metadata extraction workflow
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Stephan
+    family-names: Druskat
+    email: stephan.druskat@dlr.de
+    affiliation: German Aerospace Center (DLR)
+    orcid: 'https://orcid.org/0000-0003-4925-7248'
+abstract: >-
+  A Snakemake workflow for extracting metadata for PMC
+  publications.
+license: MIT
+version: 0.1.0
+date-released: '2024-04-29'
