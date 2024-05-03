@@ -36,6 +36,8 @@ rule write_luts:
         "resources/metadata/PMC{subset}xxxxxx/"
     output:
         "results/PMC{subset}.json"
+    log:
+        "logs/{subset}.log"
     script:
         "scripts/write_lut.py"
 

@@ -1,8 +1,18 @@
 import os
 from datetime import datetime
 import json
+import logging
 
 from lxml import etree
+
+log = logging.getLogger(__name__)
+file_handler = logging.FileHandler(str(snakemake.log), mode="w")
+file_handler.setFormatter(logging.Formatter(
+    fmt="[%(asctime)s] [%(levelname)8s] --- %(message)s (%(module)s.%(funcName)s > %(filename)s:%(lineno)s)"
+))
+log.setLevel(logging.getLevelName("DEBUG"))
+log.addHandler(file_handler)
+
 
 def earliest_date(_full_dates: list[datetime], _month_dates: list[datetime], _year_dates: list[datetime]) -> datetime:
     """
@@ -61,8 +71,10 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
                     full_dates.append(datetime(year, month, day))
                 elif month is not None:
                     month_dates.append(datetime(year, month, 1))
-                else:
+                elif year is not None:
                     year_dates.append(datetime(year, 1, 1))
+                else:
+                    log.error(f"Could not find date data in {_file}: {etree.tostring(pub_date, pretty_print=True).decode()}.")
             lut[_file.rstrip("lmx.")] = earliest_date(full_dates, month_dates, year_dates).strftime("%Y-%m-%d")
     return lut
 
