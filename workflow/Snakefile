@@ -19,6 +19,7 @@ checkpoint bulk_download_pmc_metadata:
         )
     output:
         f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+    threads: 1
     shell:
         "mkdir -p resources/metadata && cp {input} resources/metadata"
 
