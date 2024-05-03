@@ -88,5 +88,7 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
 
 
 if __name__ == '__main__':
-    with open(str(snakemake.output), "w") as out:
-        json.dump(construct_lut(str(snakemake.input)), out)
+    lut = construct_lut(str(snakemake.input))
+    if lut:
+        with open(str(snakemake.output), "w") as out:
+            json.dump(lut, out)
