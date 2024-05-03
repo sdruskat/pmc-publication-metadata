@@ -57,16 +57,20 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
             month_dates = []
             year_dates = []
             for pub_date in pub_dates:
-                year = month = day = None
+                # year = month = day = None
+                # a = pub_date.find(".//year")
                 a = pub_date.find(".//year")
-                if a and a.text:
-                    year = int(a.text)
+                year = int(a.text) if a is not None and a.text is not None else None
                 m = pub_date.find(".//month")
-                if m and m.text:
-                    month = int(m.text)
+                month = int(m.text) if m is not None and m.text is not None else None
                 d = pub_date.find(".//day")
-                if d and d.text:
-                    day = int(d.text)
+                day = int(d.text) if d is not None and d.text is not None else None
+                if day is not None:
+                    full_dates.append(datetime(year, month, day))
+                elif month is not None:
+                    month_dates.append(datetime(year, month, 1))
+                else:
+                    year_dates.append(datetime(year, 1, 1))
                 if day is not None:
                     full_dates.append(datetime(year, month, day))
                 elif month is not None:
