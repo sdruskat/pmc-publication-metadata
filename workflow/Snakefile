@@ -3,7 +3,7 @@
 # https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html,
 # in particular regarding the standardized folder structure mentioned there. 
 
-configfile: "config/config.yml"
+configfile: local("config/config.yml")
 
 SUBSETS = config["subset"]
 BASELINE_DATE = config["pmc_baseline_date"]
