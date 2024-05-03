@@ -31,7 +31,7 @@ You can use [`run.sh`](run.sh) to run the workflow this way, and with 12 cores.
 Create a Snakemake profile, then run as follows:
 
 ```shell
-snakemake --executor slurm --keep-storage-local-copies -d /scratch/<USER>/pmc-metadata --profile pmc-metadata
+snakemake --executor slurm --keep-storage-local-copies -d /scratch/$USER/pmc-metadata --profile pmc-metadata
 ```
 
 # Citation
