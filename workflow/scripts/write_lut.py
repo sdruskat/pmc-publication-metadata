@@ -1,9 +1,8 @@
 import os
 from datetime import datetime
-import xml.etree.cElementTree as ET
 import json
 
-
+from lxml import etree
 
 def earliest_date(_full_dates: list[datetime], _month_dates: list[datetime], _year_dates: list[datetime]) -> datetime:
     """
@@ -38,8 +37,11 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
     lut = {}
     for _file in os.listdir(in_dir):
         if _file.endswith(".xml"):
-            tree = ET.parse(os.path.join(in_dir, _file))
-            root = tree.getroot()
+            # Parse XML
+            parser = etree.XMLParser(encoding='utf-8', recover=True)
+            xml_tree = etree.parse(os.path.join(in_dir, _file), parser=parser)
+            root = xml_tree.getroot()
+
             pub_dates = root.findall("front/article-meta/pub-date")
             full_dates = []
             month_dates = []

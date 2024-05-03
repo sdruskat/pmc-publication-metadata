@@ -17,3 +17,4 @@ dependencies:
       - snakemake-storage-plugin-zenodo
       - snakemake-storage-plugin-ftp
       - snakemake-executor-plugin-slurm
+      - lxml
