@@ -16,4 +16,3 @@ dependencies:
       - xmlschema
       - snakemake-storage-plugin-zenodo
       - snakemake-storage-plugin-ftp
-      - lxml

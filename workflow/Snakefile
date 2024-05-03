@@ -8,57 +8,51 @@ configfile: "config/config.yml"
 SUBSETS = config["subset"]
 BASELINE_DATE = config["pmc_baseline_date"]
 
-checkpoint bulk_download_pmc_metadata:
-    input:
-        storage.ftp(
-            expand(
-                "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/oa_noncomm_xml.PMC"
-                f"{{subset}}"
-                "xxxxxx.baseline."
-                f"{BASELINE_DATE}"
-                ".tar.gz",
-                subset=SUBSETS
-            )
-        )
-    output:
-        directory("resources/metadata")
-    shell:
-        "mkdir -p {output} && cp {input} {output}"
-
+# FIXME: Uncomment to use real remote resources
 # checkpoint bulk_download_pmc_metadata:
 #     input:
-#         expand(
-#                 "fakeresources/oa_noncomm_xml.PMC"
-#                 f"{{subset}}"
-#                 "xxxxxx.baseline."
-#                 f"{BASELINE_DATE}"
-#                 ".tar.gz",
-#                 subset=SUBSETS
+#         storage.ftp(
+#             "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/oa_noncomm_xml.PMC"
+#             f"{{subset}}"
+#             "xxxxxx.baseline."
+#             f"{BASELINE_DATE}"
+#             ".tar.gz"
 #         )
 #     output:
-#         directory("resources/metadata")
+#         f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
 #     shell:
-#         "mkdir -p {output} && tar -xzvf {input} -C {output}"
+#         "mkdir -p resources/metadata && cp {input} resources/metadata"
 
-# def expand_metadata_files(wildcards):
-#     file_dir = checkpoints.bulk_download_pmc_metadata.get(**wildcards).output[0]
-#     file_names = glob_wildcards(
-#         os.path.join(file_dir, f"oa_noncomm_xml.PMC{{file_name}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz")
-#     ).file_name
-#     return expand(f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz", subset=file_names)
-#
-# rule fake:
-#     input:
-#         expand_metadata_files
-#     output:
-#         "resources/{subset}.json"
-#     script:
-#         "scripts/fakecopy.py"
-#
-# rule all:
-#     default_target: True
-#     input:
-#         expand("resources/{subset}.json", subset=config["subset"])
+checkpoint bulk_download_pmc_metadata:
+    input:
+        f"fakeresources/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+    output:
+        f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+    shell:
+        "mkdir -p resources/metadata && cp {input} resources/metadata"
+
+
+rule extract_archives:
+    input:
+        f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+    output:
+        directory("resources/metadata/PMC{subset}xxxxxx/")
+    run:
+        shell(f"for FILE in {{input}}; do tar -xzvf $FILE -C resources/metadata; done")
+
+rule write_luts:
+    input:
+        "resources/metadata/PMC{subset}xxxxxx/"
+    output:
+        "results/PMC{subset}.json"
+    script:
+        "scripts/write_lut.py"
+
+
+rule all:
+    default_target: True
+    input:
+        expand("results/PMC{subset}.json", subset=SUBSETS)
 
 rule clean:
     threads: 1
