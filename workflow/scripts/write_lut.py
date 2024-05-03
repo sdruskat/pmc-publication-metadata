@@ -1,19 +1,66 @@
 import os
-from lxml import etree
+from datetime import datetime
+import xml.etree.cElementTree as ET
+import json
 
-in_dir = snakemake.input
 
-for _file in os.listdir(in_dir):
-    if _file.endswith(".xml"):
-        with open(os.path.join(in_dir, _file), "r") as xml_file:
-            d = etree.parse(xml_file)
-            e = d.getroot()
-            e.xpath(".//abstract")
-            e.xpath(".//abstract/p")[0].text
 
-print(f"FULL INPUT: {snakemake.input}")
-# for x in snakemake.input:
-#     print(f"INPUT:; {x}")
-print(f"OUTPUT: {snakemake.output}")
-from pathlib import Path
-Path(str(snakemake.output)).touch()
+def earliest_date(_full_dates: list[datetime], _month_dates: list[datetime], _year_dates: list[datetime]) -> datetime:
+    """
+    Determines the earliest date from a set of lists of datetime objects.
+    The lists are ordered by the level of heuristic determination (or reliability) of dates.
+
+    :param _full_dates: A list of datetime objects for which all parameters (year, month, day) were available
+    :param _month_dates: A list of datetime objects for which 2/3 parameters (year, month) were available
+    :param _year_dates: A list of datetime objects for which only year was available
+    :return: the earliest date from the most reliable list, i.e., the list which contained the most complete
+    data that could be determined without using fallback values.
+    """
+    if _full_dates:
+        return min(_full_dates)
+    elif _month_dates:
+        return min(_month_dates)
+    else:
+        return min(_year_dates)
+
+
+def construct_lut(xml_dir: str) -> dict[str, str]:
+    """
+    Constructs a lookup table for publication dates for PMC publications.
+    Takes a directory with PMC metadata files in JATS XML, retrieves the publication
+    dates from the files, and writes the earliest publication date to a lookup table that is returned.
+
+    :param xml_dir: A string representing a path to a directory containing PMC metadata XML files
+    :return: A lookup table with the earliest recorded publication date for each PMC document identifier
+    for which metadata is provided in an XML file in the input folder
+    """
+    in_dir = xml_dir
+    lut = {}
+    for _file in os.listdir(in_dir):
+        if _file.endswith(".xml"):
+            tree = ET.parse(os.path.join(in_dir, _file))
+            root = tree.getroot()
+            pub_dates = root.findall("front/article-meta/pub-date")
+            full_dates = []
+            month_dates = []
+            year_dates = []
+            for pub_date in pub_dates:
+                a = pub_date.find(".//year")
+                year = int(a.text) if a is not None else None
+                m = pub_date.find(".//month")
+                month = int(m.text) if m is not None else None
+                d = pub_date.find(".//day")
+                day = int(d.text) if d is not None else None
+                if day is not None:
+                    full_dates.append(datetime(year, month, day))
+                elif month is not None:
+                    month_dates.append(datetime(year, month, 1))
+                else:
+                    year_dates.append(datetime(year, 1, 1))
+            lut[_file.rstrip("lmx.")] = earliest_date(full_dates, month_dates, year_dates).strftime("%Y-%m-%d")
+    return lut
+
+
+if __name__ == '__main__':
+    with open(str(snakemake.output), "w") as out:
+        json.dump(construct_lut(str(snakemake.input)), out)
