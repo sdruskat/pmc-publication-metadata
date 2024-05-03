@@ -14,7 +14,7 @@ log.setLevel(logging.getLevelName("DEBUG"))
 log.addHandler(file_handler)
 
 
-def earliest_date(_full_dates: list[datetime], _month_dates: list[datetime], _year_dates: list[datetime]) -> datetime:
+def get_earliest_date(_full_dates: list[datetime], _month_dates: list[datetime], _year_dates: list[datetime]) -> datetime:
     """
     Determines the earliest date from a set of lists of datetime objects.
     The lists are ordered by the level of heuristic determination (or reliability) of dates.
@@ -79,7 +79,11 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
                     year_dates.append(datetime(year, 1, 1))
                 else:
                     log.error(f"Could not find date data in {_file}: {etree.tostring(pub_date, pretty_print=True).decode()}.")
-            lut[_file.rstrip("lmx.")] = earliest_date(full_dates, month_dates, year_dates).strftime("%Y-%m-%d")
+            earliest_date = get_earliest_date(full_dates, month_dates, year_dates)
+            if earliest_date:
+                lut[_file.rstrip("lmx.")] = earliest_date.strftime("%Y-%m-%d")
+            else:
+                log.error(f"No date found for {_file.rstrip('lmx.')}.")
     return lut
 
 
