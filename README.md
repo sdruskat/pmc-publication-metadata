@@ -17,14 +17,6 @@ conda env create -n pmc-metadata --file conda-environment.yaml
 conda activate pmc-metadata
 ```
 
-You also need to get an access token from [Zenodo](https://zenodo.org) and set it to the following
-two environment variables: 
-
-```shell
-export SNAKEMAKE_STORAGE_ZENODO_ACCESS_TOKEN=<Your Zenodo access token>
-export SNAKEMAKE_STORAGE_ZENODO_RESTRICTED_ACCESS_TOKEN=<Your Zenodo access token>
-```
-
 Run with `-–keep-storage-local-copies` to avoid downloading resources over and over again.
 Also run with `--software-deployment-method conda` to use global conda packages.
 
@@ -33,6 +25,14 @@ snakemake --keep-storage-local-copies --software-deployment-method conda -c <num
 ```
 
 You can use [`run.sh`](run.sh) to run the workflow this way, and with 12 cores.
+
+## Running on a cluster with Slurm
+
+Create a Snakemake profile, then run as follows:
+
+```shell
+snakemake --executor slurm --keep-storage-local-copies -d /scratch/<USER>/pmc-metadata --profile pmc-metadata
+```
 
 # Citation
 
