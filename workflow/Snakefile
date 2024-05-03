@@ -8,29 +8,19 @@ configfile: "config/config.yml"
 SUBSETS = config["subset"]
 BASELINE_DATE = config["pmc_baseline_date"]
 
-# FIXME: Uncomment to use real remote resources
-# checkpoint bulk_download_pmc_metadata:
-#     input:
-#         storage.ftp(
-#             "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/oa_noncomm_xml.PMC"
-#             f"{{subset}}"
-#             "xxxxxx.baseline."
-#             f"{BASELINE_DATE}"
-#             ".tar.gz"
-#         )
-#     output:
-#         f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
-#     shell:
-#         "mkdir -p resources/metadata && cp {input} resources/metadata"
-
 checkpoint bulk_download_pmc_metadata:
     input:
-        f"fakeresources/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+        storage.ftp(
+            "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/oa_noncomm_xml.PMC"
+            f"{{subset}}"
+            "xxxxxx.baseline."
+            f"{BASELINE_DATE}"
+            ".tar.gz"
+        )
     output:
         f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
     shell:
         "mkdir -p resources/metadata && cp {input} resources/metadata"
-
 
 rule extract_archives:
     input:
