@@ -28,10 +28,23 @@ You can use [`run.sh`](run.sh) to run the workflow this way, and with 12 cores.
 
 ## Running on a cluster with Slurm
 
-Create a Snakemake profile, then run as follows:
+Create a Snakemake profile, then run as follows.
+
+```yaml
+# ~/.config/snakemake/<profilename>/config.v8+.yaml
+executor: slurm
+jobs: 100
+default-resources:
+  slurm_partition: cpu
+  slurm_account: $USER
+  nodes: 1
+  tasks: 1
+  cpus_per_task: 1
+local-storage-prefix: /scratch/$USER/snakemake-scratch
+```
 
 ```shell
-snakemake --executor slurm --keep-storage-local-copies -d /scratch/$USER/pmc-metadata --profile pmc-metadata
+nohup snakemake --keep-storage-local-copies --software-deployment-method conda --profile <profilename> &
 ```
 
 # Citation
