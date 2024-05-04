@@ -69,12 +69,6 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
                     full_dates.append(datetime(year, month, day))
                 elif month is not None:
                     month_dates.append(datetime(year, month, 1))
-                else:
-                    year_dates.append(datetime(year, 1, 1))
-                if day is not None:
-                    full_dates.append(datetime(year, month, day))
-                elif month is not None:
-                    month_dates.append(datetime(year, month, 1))
                 elif year is not None:
                     year_dates.append(datetime(year, 1, 1))
                 else:
