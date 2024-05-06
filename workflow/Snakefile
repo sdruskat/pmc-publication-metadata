@@ -16,16 +16,25 @@ checkpoint bulk_download_pmc_metadata:
             "xxxxxx.baseline."
             f"{BASELINE_DATE}"
             ".tar.gz"
+        ),
+        storage.ftp(
+            "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/oa_comm_xml.PMC"
+            f"{{subset}}"
+            "xxxxxx.baseline."
+            f"{BASELINE_DATE}"
+            ".tar.gz"
         )
     output:
-        f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+        f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
+        f"resources/metadata/oa_comm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
     threads: 1
     shell:
         "mkdir -p resources/metadata && cp {input} resources/metadata"
 
 rule extract_archives:
     input:
-        f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+        f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
+        f"resources/metadata/oa_comm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
     output:
         directory("resources/metadata/PMC{subset}xxxxxx/")
     run:
