@@ -8,13 +8,5 @@ channels:
   - bioconda
   - nodefaults
 dependencies:
-  - snakemake
+  - snakemake-storage-plugin-ftp
   - git
-  - mamba
-  - pip
-  - pip:
-      - xmlschema
-      - snakemake-storage-plugin-zenodo
-      - snakemake-storage-plugin-ftp
-      - snakemake-executor-plugin-slurm
-      - lxml
