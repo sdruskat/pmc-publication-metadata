@@ -30,6 +30,8 @@ checkpoint bulk_download_pmc_metadata:
         f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
         f"resources/metadata/oa_comm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
     threads: 1
+    resources:
+        runtime="1-12"
     shell:
         "mkdir -p resources/metadata && cp {input} resources/metadata"
 
@@ -39,6 +41,8 @@ rule extract_archives:
         f"resources/metadata/oa_comm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
     output:
         directory("resources/metadata/PMC{subset}xxxxxx/")
+    resources:
+        runtime="06:00:00"
     run:
         shell(f"for FILE in {{input}}; do tar -xzvf $FILE -C resources/metadata; done")
 
@@ -47,6 +51,8 @@ rule write_luts:
         "resources/metadata/PMC{subset}xxxxxx/"
     output:
         "results/PMC{subset}.json"
+    resources:
+        runtime="06:00:00"
     log:
         "logs/{subset}.log"
     script:
