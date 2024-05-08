@@ -89,7 +89,7 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
     for which metadata is provided in an XML file in the input folder
     """
     in_dir = xml_dir
-    lut = {}
+    _lut = {}
     for _file in os.listdir(in_dir):
         if _file.endswith(".xml"):
             # Parse XML
@@ -109,10 +109,10 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
                 extracted_dates.append((year, month, day))
             earliest_date = get_earliest_date_str(extracted_dates)
             if earliest_date:
-                lut[_file.rstrip("lmx.")] = earliest_date
+                _lut[_file.rstrip("lmx.")] = earliest_date
             else:
                 log.error(f"Could not determine an earliest publication date for {_file.rstrip('lmx.')}.")
-    return lut
+    return _lut
 
 
 if __name__ == '__main__':
