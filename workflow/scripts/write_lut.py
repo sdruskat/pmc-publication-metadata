@@ -1,7 +1,8 @@
 import os
-from datetime import datetime
+from datetime import datetime, MAXYEAR
 import json
 import logging
+import calendar
 
 from lxml import etree
 
@@ -14,23 +15,67 @@ log.setLevel(logging.getLevelName("DEBUG"))
 log.addHandler(file_handler)
 
 
-def get_earliest_date(_full_dates: list[datetime], _month_dates: list[datetime], _year_dates: list[datetime]) -> datetime:
+class Date:
     """
-    Determines the earliest date from a set of lists of datetime objects.
-    The lists are ordered by the level of heuristic determination (or reliability) of dates.
+    Represents a date that can be expressed as a datetime object and a string.
 
-    :param _full_dates: A list of datetime objects for which all parameters (year, month, day) were available
-    :param _month_dates: A list of datetime objects for which 2/3 parameters (year, month) were available
-    :param _year_dates: A list of datetime objects for which only year was available
-    :return: the earliest date from the most reliable list, i.e., the list which contained the most complete
-    data that could be determined without using fallback values.
+    The datetime object for a given Date is the latest possible date representing
+    the given data: it is the precise datetime when all of year, month and day are
+    given; it is the last day of the month when only year and month are given; it
+    is the last day of the year when only year is given.
+
+    The string representation of the given Date includes only the data given,
+    i.e., is in the format "<year>[-<month>[-<day>]]".
     """
-    if _full_dates:
-        return min(_full_dates)
-    elif _month_dates:
-        return min(_month_dates)
-    else:
-        return min(_year_dates)
+
+    def __init__(self, year: str, month: str = None, day: str = None):
+        self.year = year
+        self.month = month
+        self.day = day
+
+    def string(self) -> str:
+        """
+        Returns the string representation of the Date, with the pattern
+        "<year>[-<month>[-<day>]]".
+
+        :return: the string representation of the Date
+        """
+        m_str = f"-{self.month}" if self.month is not None else ""
+        d_str = f"-{self.day}" if self.month is not None and self.day is not None else ""
+        return self.year + m_str + d_str
+
+    def datetime(self) -> datetime:
+        """
+        Returns the precise, or the latest possible datetime for the Date,
+        where "precise" is the correct datetime for the object when all of
+        year, month, day are given, and "latest possible" is the last
+        day of the month in a year where month and year are given, and the
+        last day of the year when only a year is given.
+
+        :return: the latest datetime object of the Date
+        """
+        y = int(self.year)
+        m = int(self.month) if self.month is not None else 12
+        d = int(self.day) if self.day is not None else calendar.monthrange(y, m)[1]
+        return datetime(y, m, d)
+
+
+def get_earliest_date_str(dates: list[tuple[str | None]]) -> str:
+    """
+    Determines the earliest date from a set of string tuples representing the year, month,
+    and day parts of a date.
+
+    :param dates: A list of string tuples representing dates
+    :return: the string representation iof the earliest date in the given dates
+    """
+    earliest_date = Date(str(MAXYEAR))
+
+    for date in dates:
+        d = Date(date[0], date[1], date[2])
+        if d.datetime() < earliest_date.datetime():
+            earliest_date = d
+
+    return earliest_date.string()
 
 
 def construct_lut(xml_dir: str) -> dict[str, str]:
@@ -53,31 +98,20 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
             root = xml_tree.getroot()
 
             pub_dates = root.findall("front/article-meta/pub-date")
-            full_dates = []
-            month_dates = []
-            year_dates = []
+            extracted_dates = []
             for pub_date in pub_dates:
-                # year = month = day = None
-                # a = pub_date.find(".//year")
                 a = pub_date.find(".//year")
-                year = int(a.text) if a is not None and a.text is not None else None
+                year = a.text if a is not None and a.text is not None else None
                 m = pub_date.find(".//month")
-                month = int(m.text) if m is not None and m.text is not None else None
+                month = m.text if m is not None and m.text is not None else None
                 d = pub_date.find(".//day")
-                day = int(d.text) if d is not None and d.text is not None else None
-                if day is not None:
-                    full_dates.append(datetime(year, month, day))
-                elif month is not None:
-                    month_dates.append(datetime(year, month, 1))
-                elif year is not None:
-                    year_dates.append(datetime(year, 1, 1))
-                else:
-                    log.error(f"Could not find date data in {_file}: {etree.tostring(pub_date, pretty_print=True).decode()}.")
-            earliest_date = get_earliest_date(full_dates, month_dates, year_dates)
+                day = str(d.text) if d is not None and d.text is not None else None
+                extracted_dates.append((year, month, day))
+            earliest_date = get_earliest_date_str(extracted_dates)
             if earliest_date:
-                lut[_file.rstrip("lmx.")] = earliest_date.strftime("%Y-%m-%d")
+                lut[_file.rstrip("lmx.")] = earliest_date
             else:
-                log.error(f"No date found for {_file.rstrip('lmx.')}.")
+                log.error(f"Could not determine an earliest publication date for {_file.rstrip('lmx.')}.")
     return lut
 
 
