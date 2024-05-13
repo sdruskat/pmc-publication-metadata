@@ -33,18 +33,21 @@ class Date:
         self.month = month
         self.day = day
 
-    def string(self) -> str:
+    def string(self) -> str |None:
         """
         Returns the string representation of the Date, with the pattern
         "<year>[-<month>[-<day>]]".
 
         :return: the string representation of the Date
         """
-        m_str = f"-{self.month}" if self.month is not None else ""
-        d_str = f"-{self.day}" if self.month is not None and self.day is not None else ""
-        return self.year + m_str + d_str
+        if self.year is not None:
+            m_str = f"-{self.month}" if self.month is not None else ""
+            d_str = f"-{self.day}" if self.month is not None and self.day is not None else ""
+            return self.year + m_str + d_str
+        else:
+            return None
 
-    def datetime(self) -> datetime:
+    def datetime(self) -> datetime | None:
         """
         Returns the precise, or the latest possible datetime for the Date,
         where "precise" is the correct datetime for the object when all of
@@ -54,10 +57,13 @@ class Date:
 
         :return: the latest datetime object of the Date
         """
-        y = int(self.year)
-        m = int(self.month) if self.month is not None else 12
-        d = int(self.day) if self.day is not None else calendar.monthrange(y, m)[1]
-        return datetime(y, m, d)
+        if self.year is not None:
+            y = int(self.year)
+            m = int(self.month) if self.month is not None else 12
+            d = int(self.day) if self.day is not None else calendar.monthrange(y, m)[1]
+            return datetime(y, m, d)
+        else:
+            return None
 
 
 def get_earliest_date_str(dates: list[tuple[str | None]]) -> str:
@@ -72,10 +78,15 @@ def get_earliest_date_str(dates: list[tuple[str | None]]) -> str:
 
     for date in dates:
         d = Date(date[0], date[1], date[2])
-        if d.datetime() < earliest_date.datetime():
-            earliest_date = d
+        dt = d.datetime()
+        if dt is not None:
+            if dt < earliest_date.datetime():
+                earliest_date = d
 
-    return earliest_date.string()
+    if earliest_date.datetime().year < MAXYEAR:
+        return earliest_date.string()
+    else:
+        return None
 
 
 def construct_lut(xml_dir: str) -> dict[str, str]:
@@ -108,7 +119,7 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
                 day = str(d.text) if d is not None and d.text is not None else None
                 extracted_dates.append((year, month, day))
             earliest_date = get_earliest_date_str(extracted_dates)
-            if earliest_date:
+            if earliest_date is not None:
                 _lut[_file.rstrip("lmx.")] = earliest_date
             else:
                 log.error(f"Could not determine an earliest publication date for {_file.rstrip('lmx.')}.")
