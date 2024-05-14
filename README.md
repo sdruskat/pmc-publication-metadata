@@ -5,7 +5,7 @@ SPDX-FileContributor: Stephan Druskat <stephan.druskat@dlr.de>
 SPDX-License-Identifier: CC0-1.0
 -->
 
-# Snakemake workflow: Extract LUTs from PMC OA non-commercial and commercial bulk metadata
+# Snakemake workflow: Extract LUTs from PMC OA non-commercial, commercial and other bulk metadata
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥6.3.0-brightgreen.svg)](https://snakemake.github.io)
 
