@@ -12,8 +12,12 @@ conda: local("envs/global.yaml")  # Make conda env accessible workflow-wide
 
 configfile: local("config/config.yml")
 
+WD = config["outdir"] if "outdir" in config else None
 SUBSETS = config["subset"]
 BASELINE_DATE = config["pmc_baseline_date"]
+
+if WD is not None:
+    workdir: WD
 
 checkpoint bulk_download_pmc_metadata:
     input:

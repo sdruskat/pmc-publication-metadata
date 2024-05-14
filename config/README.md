@@ -7,7 +7,7 @@ SPDX-License-Identifier: CC0-1.0
 
 # Workflow configuration
 
-Configure this workflow by making two settings in `config.yml`:
+Configure this workflow by making settings in `config.yml`:
 
 - `pmc_baseline_date`: Set the date string for the baseline files, e.g., "2023-12-18".
 To see the latest available baseline files, see https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/ or
@@ -23,3 +23,4 @@ https://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/.
     - "008"
     - "009"
     - "010"
+- `outdir` (_optional_): Set the output directory, e.g., "/scratch/$USER/somedir" 
