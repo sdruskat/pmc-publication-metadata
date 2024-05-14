@@ -18,14 +18,6 @@ log.addHandler(file_handler)
 class Date:
     """
     Represents a date that can be expressed as a datetime object and a string.
-
-    The datetime object for a given Date is the latest possible date representing
-    the given data: it is the precise datetime when all of year, month and day are
-    given; it is the last day of the month when only year and month are given; it
-    is the last day of the year when only year is given.
-
-    The string representation of the given Date includes only the data given,
-    i.e., is in the format "<year>[-<month>[-<day>]]".
     """
 
     def __init__(self, year: str, month: str = None, day: str = None):
@@ -66,7 +58,7 @@ class Date:
             return None
 
 
-def get_earliest_date_str(dates: list[tuple[str | None]]) -> str:
+def get_earliest_date_str(dates: list[Date]) -> str | None:
     """
     Determines the earliest date from a set of string tuples representing the year, month,
     and day parts of a date.
@@ -77,11 +69,10 @@ def get_earliest_date_str(dates: list[tuple[str | None]]) -> str:
     earliest_date = Date(str(MAXYEAR))
 
     for date in dates:
-        d = Date(date[0], date[1], date[2])
-        dt = d.datetime()
+        dt = date.datetime()
         if dt is not None:
             if dt < earliest_date.datetime():
-                earliest_date = d
+                earliest_date = date
 
     if earliest_date.datetime().year < MAXYEAR:
         return earliest_date.string()
@@ -117,7 +108,7 @@ def construct_lut(xml_dir: str) -> dict[str, str]:
                 month = m.text if m is not None and m.text is not None else None
                 d = pub_date.find(".//day")
                 day = str(d.text) if d is not None and d.text is not None else None
-                extracted_dates.append((year, month, day))
+                extracted_dates.append(Date(year, month, day))
             earliest_date = get_earliest_date_str(extracted_dates)
             if earliest_date is not None:
                 _lut[_file.rstrip("lmx.")] = earliest_date
