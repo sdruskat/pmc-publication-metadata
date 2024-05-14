@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2024 German Aerospace Center (DLR)
+SPDX-FileContributor: Stephan Druskat <stephan.druskat@dlr.de>
+
+SPDX-License-Identifier: CC0-1.0
+-->
+
 # Snakemake workflow: Extract LUTs from PMC OA non-comm bulk metadata
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥6.3.0-brightgreen.svg)](https://snakemake.github.io)

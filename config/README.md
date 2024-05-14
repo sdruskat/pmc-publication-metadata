@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2024 German Aerospace Center (DLR)
+SPDX-FileContributor: Stephan Druskat <stephan.druskat@dlr.de>
+
+SPDX-License-Identifier: CC0-1.0
+-->
+
 # Workflow configuration
 
 Configure this workflow by making two settings in `config.yml`:
