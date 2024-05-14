@@ -51,7 +51,7 @@ local-storage-prefix: /scratch/$USER/snakemake-scratch
 ```
 
 ```shell
-nohup snakemake --keep-storage-local-copies --software-deployment-method conda --profile <profilename> &
+nohup snakemake --keep-storage-local-copies --software-deployment-method conda --profile <profilename> --config workdir=<working directory> &
 ```
 
 # Citation
