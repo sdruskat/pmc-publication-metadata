@@ -1,0 +1,1 @@
+`global.yaml` defines a conda environment with the dependencies to be available globally in the workflow.
