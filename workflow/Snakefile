@@ -1,4 +1,86 @@
+# SPDX-FileCopyrightText: 2024 German Aerospace Center (DLR)
+# SPDX-FileContributor: Stephan Druskat <stephan.druskat@dlr.de>
+#
+# SPDX-License-Identifier: CC0-1.0
+
 # Main entrypoint of the workflow. 
 # Please follow the best practices: 
 # https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html,
 # in particular regarding the standardized folder structure mentioned there. 
+
+conda: local("envs/global.yaml")  # Make conda env accessible workflow-wide
+
+configfile: local("config/config.yml")
+
+SUBSETS = config["subset"]
+BASELINE_DATE = config["pmc_baseline_date"]
+
+checkpoint bulk_download_pmc_metadata:
+    input:
+        storage.ftp(
+            "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_noncomm/xml/oa_noncomm_xml.PMC"
+            f"{{subset}}"
+            "xxxxxx.baseline."
+            f"{BASELINE_DATE}"
+            ".tar.gz"
+        ),
+        storage.ftp(
+            "ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/oa_comm/xml/oa_comm_xml.PMC"
+            f"{{subset}}"
+            "xxxxxx.baseline."
+            f"{BASELINE_DATE}"
+            ".tar.gz"
+        )
+    output:
+        f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
+        f"resources/metadata/oa_comm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+    threads: 1
+    resources:
+        runtime="2d"
+    shell:
+        "mkdir -p resources/metadata && cp {input} resources/metadata"
+
+rule extract_archives:
+    input:
+        f"resources/metadata/oa_noncomm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz",
+        f"resources/metadata/oa_comm_xml.PMC{{subset}}xxxxxx.baseline.{BASELINE_DATE}.tar.gz"
+    output:
+        directory("resources/metadata/PMC{subset}xxxxxx/")
+    resources:
+        runtime="6h"
+    run:
+        shell(f"for FILE in {{input}}; do tar -xzvf $FILE -C resources/metadata; done")
+
+rule write_luts:
+    input:
+        "resources/metadata/PMC{subset}xxxxxx/"
+    output:
+        "resources/luts/PMC{subset}.json"
+    resources:
+        runtime="6h"
+    log:
+        "logs/{subset}.log"
+    script:
+        "scripts/write_lut.py"
+
+
+rule all:
+    """
+    Produces an archive file containing lookup JSON files (PMC<zero-padded PMC prefix>.json) mapping
+    PMC publication identifiers to publication dates in
+    the format 'YYYY[-MM[-DD]]'. 
+    """
+    default_target: True
+    input:
+        expand("resources/luts/PMC{subset}.json", subset=SUBSETS)
+    output:
+        "results/pmc-publication-dates-by-identifier.tar.gz"
+    run:
+        files = " ".join([fn.split("/")[-1] for fn in [str(fn) for fn in {input}][0].split(" ")])
+        shell("tar -czvf {output} -C resources/luts {files}")
+
+
+rule clean:
+    threads: 1
+    shell:
+        "rm -rf resources/ results/ .cache/ .conda/ .snakemake/ logs/"  # Keeping extracted files

@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2024 German Aerospace Center (DLR)
+# SPDX-FileContributor: Stephan Druskat <stephan.druskat@dlr.de>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - snakemake
+  - git
+  - mamba
+  - pip
+  - pip:
+      - xmlschema
+      - snakemake-storage-plugin-zenodo
+      - snakemake-storage-plugin-ftp
+      - snakemake-executor-plugin-slurm
+      - lxml
