@@ -38,8 +38,8 @@ class Date:
         :return: the string representation of the Date
         """
         if self.year is not None:
-            m_str = f"-{self.month}" if self.month is not None else ""
-            d_str = f"-{self.day}" if self.month is not None and self.day is not None else ""
+            m_str = f"-{self.month.zfill(2)}" if self.month is not None else ""
+            d_str = f"-{self.day.zfill(2)}" if self.month is not None and self.day is not None else ""
             return self.year + m_str + d_str
         else:
             return None
