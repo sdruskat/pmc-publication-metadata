@@ -50,7 +50,7 @@ rule write_luts:
     input:
         "resources/metadata/PMC{subset}xxxxxx/"
     output:
-        "results/PMC{subset}.json"
+        "resources/luts/PMC{subset}.json"
     resources:
         runtime="6h"
     log:
@@ -60,9 +60,20 @@ rule write_luts:
 
 
 rule all:
+    """
+    Produces an archive file containing lookup JSON files (PMC<zero-padded PMC prefix>.json) mapping
+    PMC publication identifiers to publication dates in
+    the format 'YYYY[-MM[-DD]]'. 
+    """
     default_target: True
     input:
-        expand("results/PMC{subset}.json", subset=SUBSETS)
+        expand("resources/luts/PMC{subset}.json", subset=SUBSETS)
+    output:
+        "results/pmc-publication-dates-by-identifier.tar.gz"
+    run:
+        files = " ".join([fn.split("/")[-1] for fn in [str(fn) for fn in {input}][0].split(" ")])
+        shell("tar -czvf {output} -C resources/luts {files}")
+
 
 rule clean:
     threads: 1
