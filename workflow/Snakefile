@@ -61,8 +61,8 @@ rule extract_archives:
         directory("resources/metadata/PMC{subset}xxxxxx/")
     resources:
         runtime="6h"
-    run:
-        shell(f"for FILE in {{input}}; do tar -xzvf $FILE -C resources/metadata; done")
+    shell:
+        "for FILE in {input}; do tar -xzvf $FILE -C resources/metadata; done"
 
 rule write_luts:
     input:
@@ -75,6 +75,43 @@ rule write_luts:
         "logs/{subset}.log"
     script:
         "scripts/write_lut.py"
+
+
+checkpoint clone_git:
+    """
+    Clone the GitHub repository containing the source dataset 'Extract-URLs' locally.
+    """
+    output:
+        git=directory("resources/extract-urls-git")
+    shell:
+        "git clone --depth 1 -b production --single-branch https://github.com/sdruskat/Extract-URLs.git {output}"
+
+
+def _expand_parsed_pmc_url_files(wildcards):
+    """
+    Expands all files names for all JSON files in the directories
+    {RESOURCES_DIR}pmc/<given resources_dir>/
+    """
+    git_dir = checkpoints.clone_git.get(**wildcards).output['git']
+    file_names_pmc = glob_wildcards(os.path.join(git_dir,'pmc_parsed/{file_name}.json')).file_name
+
+    return expand("resources/extract-urls-git/pmc_parsed/{file_name}.json",file_name=file_names_pmc)
+
+
+rule patch_versions:
+    """
+    Checks whether all PMC IDs recorded in the parsed PMC part of the Extract-URLs dataset are in the LUTs
+    and tries to retrieve manually missing versions.
+    """
+    input:
+        lut="resources/luts/PMC{subset}.json",
+        pmc_urls=_expand_parsed_pmc_url_files,
+        # arxiv_xsd=storage.http("http://arxiv.org/OAI/arXivRaw.xsd"),
+    output:
+        "resources/patched_luts/PMC{subset}.json"
+    threads: 1
+    script:
+        "scripts/patch_publications.py"
 
 
 rule all:
