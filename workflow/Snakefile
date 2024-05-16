@@ -122,7 +122,7 @@ rule all:
     """
     default_target: True
     input:
-        expand("resources/luts/PMC{subset}.json", subset=SUBSETS)
+        expand("resources/patched_luts/PMC{subset}.json", subset=SUBSETS)
     output:
         "results/pmc-publication-dates-by-identifier.tar.gz"
     run:
