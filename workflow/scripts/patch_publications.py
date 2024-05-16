@@ -10,7 +10,6 @@ import xml.etree.ElementTree as ET
 
 import requests
 import xmlschema
-from ratelimit import limits, sleep_and_retry
 from sickle import Sickle
 
 
