@@ -7,6 +7,8 @@
 # Please follow the best practices: 
 # https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html,
 # in particular regarding the standardized folder structure mentioned there. 
+import os
+
 
 conda: local("envs/global.yaml")  # Make conda env accessible workflow-wide
 
@@ -146,6 +148,12 @@ checkpoint split_luts:
     script:
         "scripts/split_luts.py"
 
+def _expand_split_luts(wildcards):
+    split_luts_dir = checkpoints.split_luts.get(**wildcards).output[0]
+    digit_lut = glob_wildcards(os.path.join(split_luts_dir,'PMC{digit}.json')).digit
+    return expand(os.path.join(split_luts_dir, 'PMC{digit}.json'),digit=digit_lut)
+
+
 rule all:
     """
     Produces an archive file containing lookup JSON files (PMC<zero-padded PMC prefix>.json) mapping
@@ -154,7 +162,7 @@ rule all:
     """
     default_target: True
     input:
-        expand("resources/split_luts/PMC{digit}.json", digit=glob_wildcards("resources/split_luts/PMC{digit}.json").digit)
+        _expand_split_luts
     output:
         "results/pmc-publication-dates-by-identifier.tar.gz"
     run:
