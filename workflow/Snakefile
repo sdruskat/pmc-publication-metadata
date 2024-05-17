@@ -146,8 +146,6 @@ checkpoint split_luts:
     script:
         "scripts/split_luts.py"
 
-
-
 rule all:
     """
     Produces an archive file containing lookup JSON files (PMC<zero-padded PMC prefix>.json) mapping
@@ -156,7 +154,7 @@ rule all:
     """
     default_target: True
     input:
-        expand("resources/split_luts/PMC{digit}.json", digit=range(1,10))
+        expand("resources/split_luts/PMC{digit}.json", digit=glob_wildcards("resources/split_luts/PMC{digit}.json").digit)
     output:
         "results/pmc-publication-dates-by-identifier.tar.gz"
     run:
