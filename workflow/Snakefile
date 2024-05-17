@@ -167,7 +167,7 @@ rule all:
         "results/pmc-publication-dates-by-identifier.tar.gz"
     run:
         files = " ".join([fn.split("/")[-1] for fn in [str(fn) for fn in {input}][0].split(" ")])
-        shell("tar -czvf {output} -C resources/luts {files}")
+        shell("tar -czvf {output} -C resources/split_luts {files}")
 
 
 rule clean:
