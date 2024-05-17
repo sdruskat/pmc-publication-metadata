@@ -85,6 +85,8 @@ rule merge_luts:
         input=expand("resources/luts/PMC{subset}.json", subset=SUBSETS)
     output:
         "resources/pmc-publication-dates.json"
+    resources:
+        runtime="3h"
     script:
         "scripts/merge_luts.py"
 
@@ -123,6 +125,8 @@ rule patch_versions:
     output:
         "resources/pmc-publication-dates.patched.json"
     threads: 1
+    resources:
+        runtime="3h"
     script:
         "scripts/patch_publications.py"
 
@@ -137,6 +141,8 @@ checkpoint split_luts:
         pathed_lut=rules.patch_versions.output
     output:
         outdir=directory("resources/split_luts/")
+    resources:
+        runtime="3h"
     script:
         "scripts/split_luts.py"
 
