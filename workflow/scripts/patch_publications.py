@@ -7,8 +7,8 @@ import logging
 import json
 from datetime import datetime, MAXYEAR
 import xml.etree.ElementTree as ET
+import calendar
 
-import requests
 import xmlschema
 from sickle import Sickle
 
@@ -133,8 +133,6 @@ def patch_manually(lut_data):
     return lut_data | patch_data
 
 
-@sleep_and_retry
-@limits(calls=1, period=180)
 def assert_versions() -> list[str]:
     """
     Test if all IDs in all Extract-URLs ArXiv JSONs are in the compiled LUT.
