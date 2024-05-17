@@ -142,7 +142,7 @@ checkpoint split_luts:
     input:
         patched_lut=rules.patch_versions.output
     output:
-        outdir=directory("resources/split_luts/")
+        directory("resources/split_luts/")
     resources:
         runtime="3h"
     script:
@@ -151,7 +151,7 @@ checkpoint split_luts:
 def _expand_split_luts(wildcards):
     split_luts_dir = checkpoints.split_luts.get(**wildcards).output[0]
     digit_lut = glob_wildcards(os.path.join(split_luts_dir,'PMC{digit}.json')).digit
-    return expand(os.path.join(split_luts_dir, 'PMC{digit}.json'),digit=digit_lut)
+    return expand(os.path.join(split_luts_dir, 'PMC{digit}.json'), digit=digit_lut)
 
 
 rule all:
