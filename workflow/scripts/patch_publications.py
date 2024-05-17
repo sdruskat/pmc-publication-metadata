@@ -147,15 +147,17 @@ def assert_versions() -> list[str]:
     missing = []
 
     for jf in snakemake.input.pmc_urls:
-        file_ym = jf.split("/")[-1].split(".")[0]
-        with open(jf, "r") as ji:
-            url_data = json.load(ji)
-        ym_data = url_data[file_ym]
-        files = ym_data["files"]
-        for pdf_name in files.keys():
-            pmc_id = pdf_name.split(".")[-2]
-            if not pmc_id in lut_data.keys():
-                missing.append(pmc_id)
+        jfs = jf.split("/")[-1]
+        if not "test" in jfs:
+            file_ym = jfs.split(".")[0]
+            with open(jf, "r") as ji:
+                url_data = json.load(ji)
+            ym_data = url_data[file_ym]
+            files = ym_data["files"]
+            for pdf_name in files.keys():
+                pmc_id = pdf_name.split(".")[-2]
+                if not pmc_id in lut_data.keys():
+                    missing.append(pmc_id)
 
     sickle = Sickle("https://www.ncbi.nlm.nih.gov/pmc/oai/oai.cgi")
 
