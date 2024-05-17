@@ -77,6 +77,20 @@ rule write_luts:
         "scripts/write_lut.py"
 
 
+rule merge_luts:
+    """
+    Takes JSON files containing a dictionary and merges them into a single JSON file.
+    """
+    input:
+        input=expand("resources/luts/PMC{subset}.json", subset=SUBSETS)
+    output:
+        "resources/pmc-publication-dates.json"
+    script:
+        "scripts/merge_luts.py"
+
+
+
+
 checkpoint clone_git:
     """
     Clone the GitHub repository containing the source dataset 'Extract-URLs' locally.
@@ -104,14 +118,28 @@ rule patch_versions:
     and tries to retrieve manually missing versions.
     """
     input:
-        lut="resources/luts/PMC{subset}.json",
+        lut=rules.merge_luts.output,
         pmc_urls=_expand_parsed_pmc_url_files,
-        # arxiv_xsd=storage.http("http://arxiv.org/OAI/arXivRaw.xsd"),
     output:
-        "resources/patched_luts/PMC{subset}.json"
+        "resources/pmc-publication-dates.patched.json"
     threads: 1
     script:
         "scripts/patch_publications.py"
+
+
+checkpoint split_luts:
+    """
+    Splits existing JSON LUT mapping PMC identifiers
+    to publication dates by first digit of PMC identifier,
+    and saves them into separate files. 
+    """
+    input:
+        pathed_lut=rules.patch_versions.output
+    output:
+        outdir=directory("resources/split_luts/")
+    script:
+        "scripts/split_luts.py"
+
 
 
 rule all:
@@ -122,7 +150,7 @@ rule all:
     """
     default_target: True
     input:
-        expand("resources/patched_luts/PMC{subset}.json", subset=SUBSETS)
+        expand("resources/split_luts/PMC{digit}.json", digit=range(1,10))
     output:
         "results/pmc-publication-dates-by-identifier.tar.gz"
     run:
