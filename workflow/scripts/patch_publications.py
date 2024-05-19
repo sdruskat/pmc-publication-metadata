@@ -141,7 +141,7 @@ def assert_versions() -> list[str]:
     Must only run once every 3 seconds.
     """
 
-    with open(snakemake.input.lut, "r") as lut:
+    with open(snakemake.input.lut[0], "r") as lut:
         lut_data = json.load(lut)
 
     missing = []
