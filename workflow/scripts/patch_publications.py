@@ -148,6 +148,7 @@ def assert_versions() -> list[str]:
     missing = []
 
     for jf in snakemake.input.pmc_urls:
+        log.debug(f"Processing pared PMC file: {jf}.")
         jfs = jf.split("/")[-1]
         if not "test" in jfs:
             file_ym = jfs.split(".")[0]
