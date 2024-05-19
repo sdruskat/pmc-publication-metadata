@@ -163,6 +163,7 @@ def assert_versions() -> list[str]:
 
     for missing_id in missing:
         numerical_id = missing_id.lstrip("CMP")
+        log.debug(f"Retrieving data for: {numerical_id}.")
         record = sickle.GetRecord(identifier=f"oai:pubmedcentral.nih.gov:{numerical_id}", metadataPrefix="oai_dc")
         if record is not None:
             dates = record.metadata["date"]
