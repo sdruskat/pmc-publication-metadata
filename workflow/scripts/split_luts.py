@@ -20,12 +20,17 @@ log.addHandler(file_handler)
 patched_lut = snakemake.input.patched_lut[0]
 out_dir = snakemake.output[0]
 
+log.debug(f"Input LUT: {patched_lut}.")
+log.debug(f"Output directory: {out_dir}.")
+
 lut_map = {i: {} for i in range(1, 10)}
 
 with open(patched_lut, "r") as lutf:
     data = json.load(lutf)
 
 data_len = len(data)
+
+log.debug(f"Read {data_len} dates from patched LUT.")
 
 for i, (k, v) in enumerate(data.items()):
     if i % 100000 == 0:
