@@ -144,7 +144,8 @@ checkpoint split_luts:
     output:
         directory("resources/split_luts/")
     resources:
-        runtime="3h"
+        runtime="12h",
+        mem="50GB"
     script:
         "scripts/split_luts.py"
 
