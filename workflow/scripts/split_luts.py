@@ -20,20 +20,18 @@ log.addHandler(file_handler)
 patched_lut = snakemake.input.patched_lut[0]
 out_dir = snakemake.output[0]
 
-luts = dict()
-
 lut_map = {i: {} for i in range(1, 10)}
 
 with open(patched_lut, "r") as lutf:
     data = json.load(lutf)
 
-    data_len = len(data)
+data_len = len(data)
 
-    for i, (k, v) in enumerate(data.items()):
-        if i % 100000 == 0:
-            log.debug(f"Splitting item {i} of {data_len} ({i / data_len * 100}%)")
-        digit = k.lstrip("CMP")[0]
-        lut_map[int(digit)][k] = v
+for i, (k, v) in enumerate(data.items()):
+    if i % 100000 == 0:
+        log.debug(f"Splitting item {i} of {data_len} ({i / data_len * 100}%)")
+    digit = k.lstrip("CMP")[0]
+    lut_map[int(digit)][k] = v
 
 od = Path(out_dir)
 od.mkdir(parents=True, exist_ok=True)
