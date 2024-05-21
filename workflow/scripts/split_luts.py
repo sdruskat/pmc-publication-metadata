@@ -18,7 +18,7 @@ log.addHandler(file_handler)
 
 
 patched_lut = snakemake.input.patched_lut
-out_dir = snakemake.output.outdir
+out_dir = snakemake.output[0]
 
 luts = dict()
 
