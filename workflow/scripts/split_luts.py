@@ -17,7 +17,7 @@ log.setLevel(logging.getLevelName("DEBUG"))
 log.addHandler(file_handler)
 
 
-patched_lut = snakemake.input.patched_lut
+patched_lut = snakemake.input.patched_lut[0]
 out_dir = snakemake.output[0]
 
 luts = dict()
