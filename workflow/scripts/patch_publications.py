@@ -129,7 +129,21 @@ def patch_manually(lut_data):
     :param lut_data: The LUT to patch
     :return: The patched LUT
     """
-    patch_data = {}
+    patch_data = {
+        "PMC8766264": "2021-10-20",
+        "PMC8686176": "2021-11-05",
+        # PMC6499493 was removed because it does not fall under the public access policy of NIH or another PMC
+        # participating funder.
+        "PMC8109901": "2021-05-04",
+        "PMC7757341": "2020-09-25",
+        # PMC6282807 was removed because it does not fall under the public access policy of NIH or another PMC
+        # participating funder.
+        "PMC5278677": "2010-03-05",
+        "PMC7774438": "2019-05-14",
+        "PMC8901372": "2022-01-14",
+        "PMC8904146": "2022-02-03",
+        "PMC8075626": "2021-07-04"
+    }
 
     return lut_data | patch_data
 
