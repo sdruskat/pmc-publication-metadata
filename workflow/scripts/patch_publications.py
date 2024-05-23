@@ -16,7 +16,7 @@ from sickle.oaiexceptions import IdDoesNotExist
 
 log = logging.getLogger(__name__)
 
-file_handler = logging.FileHandler(f"{snakemake.output[0]}.log", mode="w")
+file_handler = logging.FileHandler(str(snakemake.log), mode="w")
 file_handler.setFormatter(logging.Formatter(
     fmt="[%(asctime)s] [%(levelname)8s] --- %(message)s (%(module)s.%(funcName)s > %(filename)s:%(lineno)s)"
 ))

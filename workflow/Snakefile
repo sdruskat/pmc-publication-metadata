@@ -51,8 +51,10 @@ checkpoint bulk_download_pmc_metadata:
     threads: 1
     resources:
         runtime="2d"
+    log:
+        "logs/bulk_download_pmc_metadata-{subset}.log"
     shell:
-        "mkdir -p resources/metadata && cp {input} resources/metadata"
+        "mkdir -p resources/metadata && cp {input} resources/metadata >> {log} 2>&1"
 
 rule extract_archives:
     input:
@@ -63,8 +65,10 @@ rule extract_archives:
         directory("resources/metadata/PMC{subset}xxxxxx/")
     resources:
         runtime="6h"
+    log:
+        "logs/extract_archives-{subset}.log"
     shell:
-        "for FILE in {input}; do tar -xzvf $FILE -C resources/metadata; done"
+        "for FILE in {input}; do tar -xzvf $FILE -C resources/metadata; done >> {log} 2>&1"
 
 rule write_luts:
     input:
@@ -74,7 +78,7 @@ rule write_luts:
     resources:
         runtime="6h"
     log:
-        "logs/{subset}.log"
+        "logs/write_luts-{subset}.log"
     script:
         "scripts/write_lut.py"
 
@@ -89,6 +93,8 @@ rule merge_luts:
         "resources/pmc-publication-dates.json"
     resources:
         runtime="3h"
+    log:
+        "logs/merge_luts-{subset}.log"
     script:
         "scripts/merge_luts.py"
 
@@ -101,8 +107,10 @@ checkpoint clone_git:
     """
     output:
         git=directory("resources/extract-urls-git")
+    log:
+        "logs/clone_git.log"
     shell:
-        "git clone --depth 1 -b production --single-branch https://github.com/sdruskat/Extract-URLs.git {output}"
+        "git clone --depth 1 -b production --single-branch https://github.com/sdruskat/Extract-URLs.git {output} >> {log} 2>&1"
 
 
 def _expand_parsed_pmc_url_files(wildcards):
@@ -129,6 +137,8 @@ rule patch_versions:
     threads: 1
     resources:
         runtime="3h"
+    log:
+        "logs/patch_versions.log"
     script:
         "scripts/patch_publications.py"
 
@@ -146,6 +156,8 @@ checkpoint split_luts:
     resources:
         runtime="12h",
         mem="50GB"
+    log:
+        "logs/split_luts.log"
     script:
         "scripts/split_luts.py"
 
@@ -166,9 +178,11 @@ rule all:
         _expand_split_luts
     output:
         "results/pmc-publication-dates-by-identifier.tar.gz"
+    log:
+        "logs/all.log"
     run:
         files = " ".join([fn.split("/")[-1] for fn in [str(fn) for fn in {input}][0].split(" ")])
-        shell("tar -czvf {output} -C resources/split_luts {files}")
+        shell("tar -czvf {output} -C resources/split_luts {files} >> {log} 2>&1")
 
 
 rule clean:
