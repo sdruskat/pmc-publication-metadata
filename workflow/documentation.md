@@ -13,8 +13,6 @@ named `PMC<first digit>.json`, e.g., `PMC1.json` (which contains all identifiers
 
 ## Steps ("Rules")
 
-# FIXME Update
-
 1. The baseline tar.gz archives for the [configured baseline date](../config/README.md) are downloaded from the
 PMC FTP server, and extracted to give access to the JATS XML files containing the publication metadata.
 2. From each XML file for a PMC publication, the following metadata is extracted and written into a lookup table that 
