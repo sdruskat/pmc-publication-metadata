@@ -22,7 +22,7 @@ Each lookup table is saved to a JSON file.
 3. The lookup tables are written into JSON files names `PMC<zero-padded PMC identifier prefix>.json`.
 4. All lookup tables are merged into a single file `pmc-publication-dates.json`.
 5. An attempt is made to patch missing metadata into the merged lookup table.
-    - For all PMC identifiers that are present in the *Extract-URLs* dataset [^3], it is checked if they are 
+    - For all PMC identifiers that are present in the *Extract-URLs* dataset [^1], it is checked if they are 
       in the lookup table, attempts are made to retrieve missing metadata from the single OAI-PMH record of
       the publication. For identifiers that are still missing, results from a manual check are patched into
       the table.
@@ -35,3 +35,5 @@ E.g., `PMC1.json` contains the data for all PMC publications whose identifier st
 A graphical overview  of the rules is given below:
 
 ![DAG of the rules described above, generated via `snakemake --dag | dot -Tsvg > dag.svg` run in the repository root.](../dag.svg)
+
+[^1]: Escamilla, E. _Extract-URLs_ [Data set]. <https://github.com/elescamilla/Extract-URLs>
