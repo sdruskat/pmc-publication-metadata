@@ -8,7 +8,7 @@
 # https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html,
 # in particular regarding the standardized folder structure mentioned there. 
 import os
-
+import json
 
 conda: local("envs/global.yaml")  # Make conda env accessible workflow-wide
 
@@ -177,12 +177,15 @@ rule all:
     input:
         _expand_split_luts
     output:
-        "results/pmc-publication-dates-by-identifier.tar.gz"
+        tgz="results/pmc-publication-dates-by-identifier.tar.gz",
+        name_json="results/file_names.json",
     log:
         "logs/all.log"
     run:
+        with open(output.name_json, "w") as name_f:
+            json.dump(input, name_f)
         files = " ".join([fn.split("/")[-1] for fn in [str(fn) for fn in {input}][0].split(" ")])
-        shell("tar -czvf {output} -C resources/split_luts {files} >> {log} 2>&1")
+        shell("tar -czvf {output.tgz} -C resources/split_luts {files} >> {log} 2>&1")
 
 
 rule clean:
